@@ -1,0 +1,38 @@
+{
+    "[python]": {
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
+    "files.watcherExclude": {
+        "**/venv/**": true
+    },
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Args": [
+        "--ignore=E501,E203,W503,B902"
+    ],
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "-l",
+        "160"
+    ],
+    "python.autoComplete.extraPaths": [
+        "src"
+    ],
+    "cSpell.words": [
+        "venv",
+        "capsys"
+    ],
+    "editor.formatOnSave": true,
+    "cSpell.enableFiletypes": [
+        "makefile",
+        "proto3"
+    ],
+    "cSpell.allowCompoundWords": true,
+    "python.analysis.extraPaths": [
+        "src"
+    ],
+    "python.testing.pytestEnabled": true
+}
