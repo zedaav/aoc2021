@@ -13,11 +13,12 @@ class AOC2021Resolver:
         parser = ArgumentParser(description="Solutions for AoC 2021")
         parser.add_argument("-i", "--input", type=Path, help="Path to input file", required=True)
         parser.add_argument("-d", "--day", type=float, help="Puzzle day (e.g. 1.1)", required=True)
+        parser.add_argument("-v", "--verbose", action="store_true", default=False, help="Verbose logs")
         self.args = parser.parse_args(argv)
 
     def process(self):
         # Prepare logs
-        coloredlogs.install(level=logging.DEBUG, fmt="%(levelname)s - %(message)s", reconfigure=True)
+        coloredlogs.install(level=logging.DEBUG if self.args.verbose else logging.INFO, fmt="%(levelname)s - %(message)s", reconfigure=True)
 
         # Read lines
         with self.args.input.open() as f:
