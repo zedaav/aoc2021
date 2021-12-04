@@ -1,22 +1,18 @@
 import logging
 from pathlib import Path
-from typing import Callable, List
 
 from pytest_multilog import TestHelper
+
+from aoc2021.__main__ import AOC2021Resolver
 
 
 class AOC2021Tester(TestHelper):
     INPUTS = Path(__file__).parent.parent.parent / "inputs"
 
-    def check_method(self, method: Callable, input: List[str], expected: str, capsys):
+    def check_method(self, day: float, input: str, expected: str):
         # Call method
-        logging.debug(f"Calling method {method.__name__} with args: {input}")
-        method(input)
-
-        # Capture output
-        captured = capsys.readouterr()
-        logging.debug(f"Captured stdout:\n{captured.out}")
-        logging.debug(f"Captured stdout:\n{captured.err}")
+        logging.debug(f"Calling puzzle day {day} with input {input}")
+        AOC2021Resolver(["-d", str(day), "-i", (AOC2021Tester.INPUTS / input).as_posix()]).process()
 
         # Verify expected out
-        assert expected in captured.out
+        self.check_logs(expected)

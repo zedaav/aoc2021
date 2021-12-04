@@ -1,8 +1,5 @@
-#!/usr/bin/env python3
+import logging
 import re
-import sys
-from argparse import ArgumentParser
-from pathlib import Path
 from typing import List
 
 FORWARD_PATTERN = re.compile("forward ([0-9]+)")
@@ -11,17 +8,7 @@ UP_PATTERN = re.compile("up ([0-9]+)")
 PATTERNS = [FORWARD_PATTERN, DOWN_PATTERN, UP_PATTERN]
 
 
-def day02_1(input_args: List[str]):
-    # Parse args
-    parser = ArgumentParser(description="Solution for AoC 2021 day 2-1")
-    parser.add_argument("input", type=Path, nargs=1, help="Path to input file")
-    args = parser.parse_args(input_args)
-
-    # Read file
-    input_file: Path = args.input[0]
-    with input_file.open() as f:
-        instructions = f.readlines()
-
+def process(instructions: List[str]):
     # Loop on instructions
     horizontal = depth = 0
     for instruction in instructions:
@@ -44,12 +31,4 @@ def day02_1(input_args: List[str]):
                 break
 
     # Final position
-    print(f"Result: {horizontal * depth}.")
-
-
-def main():  # pragma: no cover
-    day02_1(sys.argv[1:])
-
-
-if __name__ == "__main__":  # pragma: no cover
-    main()
+    logging.info(f"Result: {horizontal * depth}.")

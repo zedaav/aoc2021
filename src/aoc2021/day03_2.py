@@ -1,25 +1,14 @@
-#!/usr/bin/env python3
-import sys
-from argparse import ArgumentParser
-from pathlib import Path
+import logging
 from typing import List
 
 
-def day03_2(input_args: List[str]):
-    # Parse args
-    parser = ArgumentParser(description="Solution for AoC 2021 day 3-1")
-    parser.add_argument("input", type=Path, nargs=1, help="Path to input file")
-    args = parser.parse_args(input_args)
-
-    # Read file
-    input_file: Path = args.input[0]
-    with input_file.open() as f:
-        lines = [line.strip("\r\n ") for line in f.readlines()]
-        diagnostics = [int("0b" + line, base=0) for line in lines]
+def process(lines: List[str]):
+    # Process diagnostics
+    diagnostics = [int("0b" + line, base=0) for line in lines]
 
     # Get prepared
     sample_size = len(lines[0])
-    print(f"sample size: {sample_size}")
+    logging.debug(f"sample size: {sample_size}")
 
     # Reckon oxygen and CO2
     oxygen_diags = list(diagnostics)
@@ -51,14 +40,6 @@ def day03_2(input_args: List[str]):
     co2 = co2_diags[0]
 
     # Final life support
-    print(f"oxygen: {oxygen} ({bin(oxygen)})")
-    print(f"co2: {co2} ({bin(co2)})")
-    print(f"Result: {oxygen * co2}.")
-
-
-def main():  # pragma: no cover
-    day03_2(sys.argv[1:])
-
-
-if __name__ == "__main__":  # pragma: no cover
-    main()
+    logging.debug(f"oxygen: {oxygen} ({bin(oxygen)})")
+    logging.debug(f"co2: {co2} ({bin(co2)})")
+    logging.info(f"Result: {oxygen * co2}.")

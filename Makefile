@@ -1,10 +1,9 @@
 .SILENT:
 SHELL := /bin/bash
 
-# Default: nothing to do
+# Default: build
 .PHONY: default
-default:
-	true
+default: build
 
 # Clean un-tracked files
 .PHONY: clean
@@ -14,7 +13,7 @@ clean:
 # Venv setup
 VENV := venv
 IN_VENV := source $(VENV)/bin/activate &&
-ALL_REQUIREMENTS := requirements-dev.txt requirements-test.txt
+ALL_REQUIREMENTS := $(shell ls requirements*.txt)
 PYTHON := python3.8
 $(VENV): $(ALL_REQUIREMENTS)
 	rm -Rf $(VENV)
@@ -29,7 +28,7 @@ clean-venv:
 
 # Build
 .PHONY: build
-build:
+build: $(VENV)
 	rm -Rf out/dist
 	$(IN_VENV) ./setup.py sdist --dist-dir out/dist
 	$(IN_VENV) pip uninstall -y aoc2021
