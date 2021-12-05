@@ -2,12 +2,9 @@ import logging
 import re
 from typing import Dict, List, Tuple
 
+from aoc2021.commons import dump_table
+
 BOARD_PATTERN = re.compile("([0-9]+) +([0-9]+) +([0-9]+) +([0-9]+) +([0-9]+)")
-
-
-def print_board(board: List[Dict[int, bool]]):
-    for board_line in board:
-        logging.debug(f"{board_line}".replace("True", "*TRUE*"))
 
 
 def check_board(board: List[Dict[int, bool]], number: int) -> int:
@@ -16,7 +13,7 @@ def check_board(board: List[Dict[int, bool]], number: int) -> int:
         if number in board_line:
             board_line[number] = True
             logging.debug(f"Board match for {number}!")
-            print_board(board)
+            dump_table(board)
 
     # Browse board to check if at least one line or one column is fully marked
     if any(all(v for v in board_line.values()) for board_line in board) or any(all(list(board_line.values())[i] for board_line in board) for i in range(5)):
@@ -37,7 +34,7 @@ def check_board(board: List[Dict[int, bool]], number: int) -> int:
 def append_board(new_board: List[Dict[int, bool]], boards: List[List[Dict[int, bool]]]) -> bool:
     if new_board is not None:
         logging.debug("New board!")
-        print_board(new_board)
+        dump_table(new_board)
         boards.append(new_board)
         return True
     return False
