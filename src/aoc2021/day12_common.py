@@ -57,9 +57,6 @@ class PathBuilder:
             out.extend(PathBuilder(candidate, self.used_nodes).follow_paths())
         return out
 
-    def __repr__(self) -> str:
-        return f"Path: {'-'.join(map(lambda c:c.name, self.used_nodes))}"
-
 
 class PathProcessor:
     def __init__(self, paths: List[str], small_visits: int):
