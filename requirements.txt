@@ -1,2 +1,5 @@
 # For prettier logs
 coloredlogs
+
+# For bit arrays handling
+bitarray
