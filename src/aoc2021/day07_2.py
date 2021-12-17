@@ -1,16 +1,8 @@
 import logging
 from typing import List
 
+from aoc2021.commons import int_sum
 from aoc2021.day07_common import factorize_crabs
-
-INT_SUM_CACHE = {}
-
-
-def int_sum(target: int) -> int:
-    # Some maths: 1+2+3+4+5+....+N = (N*(N+1))/2
-    if target not in INT_SUM_CACHE:
-        INT_SUM_CACHE[target] = int((target * (target + 1)) / 2)
-    return INT_SUM_CACHE[target]
 
 
 def process(instructions: List[str]):
