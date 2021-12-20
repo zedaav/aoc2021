@@ -3,3 +3,6 @@ coloredlogs
 
 # For bit arrays handling
 bitarray
+
+# For arrays processing
+numpy
