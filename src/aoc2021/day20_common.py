@@ -15,9 +15,12 @@ class ImageProcessor:
         return numpy.count_nonzero(self.image)
 
     def process(self, iterations: int):
+        # Before first process, all pixels out of the frame are 0s
         pad = 0
+
+        # Iterate on process occurrences
         for _ in range(iterations):
-            # New image with padded borders (new 0s everywhere)
+            # New image with padded borders
             new_image = numpy.pad(self.image, 1, constant_values=pad)
 
             # Temporary image with additional border to handle N+3 segments on borders
@@ -32,7 +35,10 @@ class ImageProcessor:
                     # Get new value from algo
                     new_image[x, y] = self.algo[tuple(segment.flatten())]
 
-            # Next iteration padding -- still need to understand why...
+            # Next iteration padding; pixels out of the frame may become:
+            # - 1s everywhere if there are 0s everywhere and algo[0]==1
+            # - 0s everywhere if there are 1s everywhere and algo[1]==0
+            #   (should be always the case, otherwise there will be an infinite number of 1s after 1st process iteration)
             pad = self.algo[(pad,) * 9]
 
             # New image after process
