@@ -1,5 +1,6 @@
 import logging
 import re
+from functools import lru_cache
 from typing import Dict, List, Tuple
 
 SCANNER_HEADER = re.compile("--- scanner ([0-9]+) ---")
@@ -31,10 +32,43 @@ for face_up in [rotate_x, rotate_x, rotate_z, rotate_x, rotate_x, rotate_z]:
     __current = face_up(__current)
 
 
+@lru_cache(maxsize=None)
+def get_beacon_coord(beacon: Tuple[int, int, int], p: int) -> int:
+    return beacon[abs(p) - 1] * (p // abs(p))
+
+
+@lru_cache(maxsize=None)
+def get_rotated_beacons(
+    beacons: Tuple[Tuple[int, int, int]], position: Tuple[int, int, int], relative_to: Tuple[int, int, int], rotate_relative: bool
+) -> Tuple[Tuple[int, int, int]]:
+    """
+    Returns a copy of beacons, with following modifications:
+    * beacons: beacons to be reordered
+    * position: rotation to be applied
+    * relative_to: a tuple of offsets to be directly added
+    * sign: sign to use on addition
+    * rotate_relative: True if relative needs to be rotated before being added
+    """
+    # Iterate on beacons
+    out = []
+    for beacon in beacons:
+        # Rotate it according to required position, and get coordinates relative to required beacon
+        out.append(
+            tuple(
+                map(
+                    lambda i: get_beacon_coord(beacon, position[i])
+                    + (-1 if rotate_relative else 1) * get_beacon_coord(relative_to, position[i] if rotate_relative else i + 1),
+                    range(len(position)),
+                )
+            )
+        )
+    return tuple(out)
+
+
 class Scanner:
     def __init__(self, sid: int, beacons: List[Tuple[int, int, int]], known_pos=False):
         self.sid = sid
-        self.beacons = list(beacons)
+        self.beacons = tuple(beacons)
         self.known_pos = known_pos
         self.coords = (0, 0, 0) if known_pos else None
         self._cached_rotated_beacons = {}
@@ -45,44 +79,9 @@ class Scanner:
         self.coords = coords
 
         # Update all beacons with repositioned scanner coordinates + position
-        self.beacons = self.get_rotated_beacons(position, coords, rotate_relative=False)
+        self.beacons = get_rotated_beacons(self.beacons, position, coords, False)
         self._cached_rotated_beacons = {}
         logging.debug(f"Scanner {self.sid} positions updated!")
-
-    def get_beacon_coord(self, beacon: Tuple[int, int, int], p: int) -> int:
-        return beacon[abs(p) - 1] * (p // abs(p))
-
-    def get_rotated_beacons(
-        self, position: Tuple[int, int, int], relative_to: Tuple[int, int, int], rotate_relative: bool = True
-    ) -> List[Tuple[int, int, int]]:
-        """
-        Returns a copy of beacons, with following modifications:
-        * position: rotation to be applied
-        * relative_to: a tuple of offsets to be directly added
-        * sign: sign to use on addition
-        * rotate_relative: True if relative needs to be rotated before being added
-        """
-        # Already in cache
-        cache_ref = (position, relative_to)
-        if rotate_relative and cache_ref in self._cached_rotated_beacons:
-            return self._cached_rotated_beacons[cache_ref]
-
-        # Iterate on beacons
-        out = []
-        for beacon in self.beacons:
-            # Rotate it according to required position, and get coordinates relative to required beacon
-            out.append(
-                tuple(
-                    map(
-                        lambda i: self.get_beacon_coord(beacon, position[i])
-                        + (-1 if rotate_relative else 1) * self.get_beacon_coord(relative_to, position[i] if rotate_relative else i + 1),
-                        range(len(position)),
-                    )
-                )
-            )
-        if rotate_relative:
-            self._cached_rotated_beacons[cache_ref] = out
-        return out
 
     def find_common_beacons(self, other: object) -> bool:
         # Can be called only on a Scanner with up-to-date positions
@@ -90,17 +89,17 @@ class Scanner:
 
         # Iterage on self beacons
         for self_reference in self.beacons:
-            self_rotated_beacons = self.get_rotated_beacons(ALL_COMBINATIONS[0], self_reference)
+            self_rotated_beacons = get_rotated_beacons(self.beacons, ALL_COMBINATIONS[0], self_reference, True)
             # Iterate on other beacons
             for other_reference in other.beacons:
                 # Iterate on possible positions
                 for position in ALL_COMBINATIONS:
                     # Verify beacons intersection
-                    other_rotated_beacons = other.get_rotated_beacons(position, other_reference)
+                    other_rotated_beacons = get_rotated_beacons(other.beacons, position, other_reference, True)
                     common_beacons = list(set(self_rotated_beacons) & set(other_rotated_beacons))
                     if len(common_beacons) >= 12 and (0, 0, 0) in common_beacons:
                         # Reckon other scanner position
-                        other_rotated_reference = tuple(map(lambda p: self.get_beacon_coord(other_reference, p), position))
+                        other_rotated_reference = tuple(map(lambda p: get_beacon_coord(other_reference, p), position))
                         other_coord = (
                             self_reference[0] - other_rotated_reference[0],
                             self_reference[1] - other_rotated_reference[1],
